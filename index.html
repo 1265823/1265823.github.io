@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>怪奇物语材哥制作 | Stranger Things Fan Site</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'hawkins-blue': '#00a1e4',
+                        'hawkins-pink': '#ec0b8e',
+                        'hawkins-purple': '#9c27b0',
+                        'hawkins-black': '#0a0a0a',
+                        'hawkins-red': '#ff0000'
+                    },
+                    fontFamily: {
+                        'retro': ['VT323', 'monospace', 'system-ui']
+                    },
+                    animation: {
+                        'scanline': 'scanline 4s linear infinite',
+                        'vertical-scan': 'verticalScan 8s linear infinite',
+                        'glitch': 'glitch 2s infinite',
+                        'flicker': 'flicker 0.5s infinite alternate',
+                        'typewriter': 'typewriter 3.5s steps(40, end), blink-caret 0.75s step-end infinite'
+                    },
+                    keyframes: {
+                        scanline: {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(100%)' }
+                        },
+                        verticalScan: {
+                            '0%': { transform: 'translateY(-100vh)' },
+                            '100%': { transform: 'translateY(100vh)' }
+                        },
+                        glitch: {
+                            '0%, 100%': { transform: 'translate(0)' },
+                            '20%': { transform: 'translate(-5px, 5px)' },
+                            '40%': { transform: 'translate(-5px, -5px)' },
+                            '60%': { transform: 'translate(5px, 5px)' },
+                            '80%': { transform: 'translate(5px, -5px)' }
+                        },
+                        flicker: {
+                            '0%': { opacity: 0.8 },
+                            '100%': { opacity: 1 }
+                        },
+                        typewriter: {
+                            'from': { width: '0' },
+                            'to': { width: '100%' }
+                        },
+                        'blink-caret': {
+                            'from, to': { borderColor: 'transparent' },
+                            '50%': { borderColor: '#ec0b8e' }
+                        }
+                    },
+                    boxShadow: {
+                        'neon': '0 0 5px #00a1e4, 0 0 10px #00a1e4',
+                        'neon-pink': '0 0 5px #ec0b8e, 0 0 10px #ec0b8e',
+                        'neon-purple': '0 0 5px #9c27b0, 0 0 10px #9c27b0'
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass-panel {
+                background: rgba(10, 10, 10, 0.7);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .pixel-corners {
+                clip-path: polygon(
+                    0% 5px, 5px 5px, 5px 0%, calc(100% - 5px) 0%, calc(100% - 5px) 5px, 
+                    100% 5px, 100% calc(100% - 5px), calc(100% - 5px) calc(100% - 5px), 
+                    calc(100% - 5px) 100%, 5px 100%, 5px calc(100% - 5px), 0% calc(100% - 5px)
+                );
+            }
+            .bg-upside-down {
+                background: repeating-linear-gradient(
+                    to bottom,
+                    rgba(10, 10, 10, 0.7),
+                    rgba(10, 10, 10, 0.7) 2px,
+                    rgba(236, 11, 142, 0.1) 2px,
+                    rgba(236, 11, 142, 0.1) 4px
+                );
+            }
+            .text-shadow-neon {
+                text-shadow: 0 0 5px #00a1e4, 0 0 10px #00a1e4;
+            }
+            .text-shadow-neon-pink {
+                text-shadow: 0 0 5px #ec0b8e, 0 0 10px #ec0b8e;
+            }
+            .border-glow {
+                box-shadow: 0 0 5px rgba(0, 161, 228, 0.5);
+            }
+            .border-glow-pink {
+                box-shadow: 0 0 5px rgba(236, 11, 142, 0.5);
+            }
+            .border-glow-purple {
+                box-shadow: 0 0 5px rgba(156, 39, 176, 0.5);
+            }
+            .grid-pattern {
+                background-image: 
+                    linear-gradient(rgba(0, 161, 228, 0.1) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(0, 161, 228, 0.1) 1px, transparent 1px);
+                background-size: 20px 20px;
+            }
+            .typewriter {
+                overflow: hidden;
+                border-right: .15em solid #ec0b8e;
+                white-space: nowrap;
+                margin: 0 auto;
+                letter-spacing: .15em;
+                animation: 
+                    typewriter 3.5s steps(40, end),
+                    blink-caret .75s step-end infinite;
+            }
+        }
+    </style>
+    <!-- GSAP 动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+</head>
+<body class="bg-hawkins-black text-white font-sans">
+    <!-- 顶部导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-hawkins-blue bg-hawkins-black/90">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <!-- Logo removed -->
+                <div class="flex items-center">
+                    <img src="https://p11-doubao-search-sign.byteimg.com/mosaic-legacy/4adf0000be6b7b8b86e8~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778842359&x-signature=asnXoFawwvfzgvuRdqy5pARAg94%3D" alt="Stranger Things Logo" class="h-8 mr-3">
+                    <span class="font-retro text-hawkins-blue text-lg hidden md:inline">STRANGER THINGS</span>
+                </div>
+                
+                <!-- 导航链接 - 桌面版 -->
+                <div class="hidden md:flex space-x-6">
+                    <a href="#home" class="nav-link font-retro text-sm hover:text-hawkins-blue transition-colors">首页</a>
+                    <a href="#about" class="nav-link font-retro text-sm hover:text-hawkins-blue transition-colors">剧集信息</a>
+                    <a href="#characters" class="nav-link font-retro text-sm hover:text-hawkins-blue transition-colors">角色介绍</a>
+                    <a href="#test" class="nav-link font-retro text-sm hover:text-hawkins-blue transition-colors">趣味测试</a>
+                </div>
+                
+                <!-- 移动端菜单按钮 -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-white focus:outline-none">
+                        <i class="fa fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 移动端导航菜单 -->
+            <div id="mobile-menu" class="md:hidden hidden mt-4 pb-2">
+                <div class="flex flex-col space-y-2">
+                    <a href="#home" class="nav-link font-retro text-sm py-2 hover:text-hawkins-blue transition-colors">首页</a>
+                    <a href="#about" class="nav-link font-retro text-sm py-2 hover:text-hawkins-blue transition-colors">剧集信息</a>
+                    <a href="#characters" class="nav-link font-retro text-sm py-2 hover:text-hawkins-blue transition-colors">角色介绍</a>
+                    <a href="#test" class="nav-link font-retro text-sm py-2 hover:text-hawkins-blue transition-colors">趣味测试</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 复古扫描线效果 -->
+        <div class="absolute bottom-0 left-0 right-0 h-1 bg-white opacity-10 animate-scanline"></div>
+    </nav>
+
+    <!-- 首页英雄区 -->
+    <section id="home" class="min-h-screen flex items-center justify-center relative overflow-hidden pt-16">
+        <!-- 垂直扫描灯光效果 -->
+        <div class="fixed top-0 left-0 w-full h-32 bg-gradient-to-b from-transparent via-white/30 to-transparent opacity-60 pointer-events-none z-50 animate-vertical-scan"></div>
+        <!-- 背景网格 -->
+        <div class="absolute inset-0 grid-pattern opacity-20"></div>
+        
+        <!-- 背景图片 -->
+        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://so1.360tres.com/t01f36bf63038392617.jpg'); filter: brightness(0.3);"></div>
+        
+        <!-- 内容 -->
+        <div class="container mx-auto px-4 py-16 relative z-10 text-center">
+            <div class="max-w-4xl mx-auto">
+                
+                
+                <!-- 开播日期提示 -->
+                <div class="mb-3">
+                    <span class="inline-block bg-hawkins-red text-white px-4 py-1 text-sm md:text-base font-retro tracking-wider animate-flicker">
+                        第五季将于11月26日开播
+                    </span>
+                </div>
+                
+                <!-- 标题 -->
+                <h1 class="text-4xl md:text-6xl font-retro mb-6 text-shadow-neon-pink text-hawkins-pink typewriter inline-block">
+                    STRANGER THINGS 5
+                </h1>
+                
+                <!-- 副标题 -->
+                <p class="text-xl md:text-2xl mb-4 text-gray-300 font-retro tracking-wider">
+                    欢迎来到霍金斯小镇
+                </p>
+                
+                <!-- 新增文字内容 -->
+                <div class="mb-8">
+                    <p class="text-md md:text-lg text-hawkins-blue font-retro mb-2 animate-flicker">
+                        一个充满神秘、友情与勇气的世界
+                    </p>
+                    <p class="text-sm md:text-base text-gray-400 max-w-2xl mx-auto">
+                        探索逆世界的秘密，结识勇敢的少年团，一起踏上这段惊心动魄的冒险之旅
+                    </p>
+                </div>
+                
+                <!-- 按钮 -->
+                <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <a href="#about" class="px-8 py-3 bg-hawkins-blue hover:bg-hawkins-blue/80 text-white font-retro text-sm border border-hawkins-blue border-glow transition-all pixel-corners">
+                        探索剧集
+                    </a>
+                    <a href="#test" class="px-8 py-3 bg-hawkins-pink hover:bg-hawkins-pink/80 text-white font-retro text-sm border border-hawkins-pink border-glow-pink transition-all pixel-corners">
+                        开始测试
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 复古扫描线效果 -->
+        <div class="absolute bottom-0 left-0 right-0 h-1 bg-white opacity-10 animate-scanline"></div>
+    </section>
+
+    <!-- 剧集信息 -->
+    <section id="about" class="py-20 relative bg-hawkins-black">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-retro mb-12 text-center text-hawkins-blue text-shadow-neon">
+                剧集信息
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- 第一季 -->
+                <div class="glass-panel p-6 pixel-corners">
+                    <div class="relative mb-4 overflow-hidden rounded-md">
+                        <img src="https://p11-doubao-search-sign.byteimg.com/labis/e80352e2e91bf2ccf5e06d161d1cc5f3~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778842359&x-signature=8psjWqQncvbCvBmE2Tzk9iGDago%3D" alt="第一季" class="w-full h-48 object-cover transition-transform duration-500 hover:scale-110">
+                        <div class="absolute top-2 right-2 bg-hawkins-blue text-white text-xs px-2 py-1 rounded">
+                            第一季
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-retro mb-2 text-hawkins-pink">第一季</h3>
+                    <p class="text-sm text-gray-400 mb-4">2016年</p>
+                    <p class="text-sm">
+                        当一个小男孩神秘消失后，他的朋友、家人和当地警察开始寻找答案，同时发现了一个充满秘密的超自然世界。
+                    </p>
+                </div>
+                
+                <!-- 第二季 -->
+                <div class="glass-panel p-6 pixel-corners">
+                    <div class="relative mb-4 overflow-hidden rounded-md">
+                        <img src="https://p11-doubao-search-sign.byteimg.com/labis/288e47e562526868e6e8da1c73536914~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778842359&x-signature=ukgW%2BjsrQVCNCrOlY5ZgQ5QWBEc%3D" alt="第二季" class="w-full h-48 object-cover transition-transform duration-500 hover:scale-110">
+                        <div class="absolute top-2 right-2 bg-hawkins-blue text-white text-xs px-2 py-1 rounded">
+                            第二季
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-retro mb-2 text-hawkins-pink">第二季</h3>
+                    <p class="text-sm text-gray-400 mb-4">2017年</p>
+                    <p class="text-sm">
+                        在威尔被救回后，霍金斯小镇似乎恢复了正常，但黑暗力量仍然潜伏在小镇周围，威胁着所有人。
+                    </p>
+                </div>
+                
+                <!-- 第三季 -->
+                <div class="glass-panel p-6 pixel-corners">
+                    <div class="relative mb-4 overflow-hidden rounded-md">
+                        <img src="https://p3-doubao-search-sign.byteimg.com/labis/33430242c467c65c73f140d72898d9af~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778842359&x-signature=mH95kD%2BF3g%2BxEHTdhaVz7OU%2Fv18%3D" alt="第三季" class="w-full h-48 object-cover transition-transform duration-500 hover:scale-110">
+                        <div class="absolute top-2 right-2 bg-hawkins-blue text-white text-xs px-2 py-1 rounded">
+                            第三季
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-retro mb-2 text-hawkins-pink">第三季</h3>
+                    <p class="text-sm text-gray-400 mb-4">2019年</p>
+                    <p class="text-sm">
+                        随着霍金斯购物中心的开业，小镇上出现了一系列奇怪的事件，少年们必须再次面对来自逆世界的威胁。
+                    </p>
+                </div>
+                
+                <!-- 第四季 -->
+                <div class="glass-panel p-6 pixel-corners">
+                    <div class="relative mb-4 overflow-hidden rounded-md">
+                        <img src="https://p26-doubao-search-sign.byteimg.com/tos-cn-i-tjoges91tu/SxkEi0LIoh8gNP~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778842360&x-signature=YEevD8iQrayKPnDLtJF1G0dV3fs%3D" alt="第四季" class="w-full h-48 object-cover transition-transform duration-500 hover:scale-110">
+                        <div class="absolute top-2 right-2 bg-hawkins-blue text-white text-xs px-2 py-1 rounded">
+                            第四季
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-retro mb-2 text-hawkins-pink">第四季</h3>
+                    <p class="text-sm text-gray-400 mb-4">2022年</p>
+                    <p class="text-sm">
+                        少年们已经长大，各奔东西，但当新的恐怖事件发生时，他们必须重新团结起来，面对迄今为止最可怕的威胁。
+                    </p>
+                </div>
+            </div>
+            
+            <!-- 剧集简介 -->
+            <div class="mt-16 glass-panel p-6 md:p-8 pixel-corners">
+                <h3 class="text-2xl font-retro mb-6 text-hawkins-pink text-center">剧集简介</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <p class="mb-4">
+                            《怪奇物语》是一部美国科幻恐怖电视剧，由达菲兄弟创作，于2016年在Netflix首播。剧集设定在1980年代的印第安纳州霍金斯小镇，讲述了一群孩子发现超自然现象并卷入一系列神秘事件的故事。
+                        </p>
+                        <p class="mb-4">
+                            剧集融合了科幻、恐怖、奇幻和怀旧元素，致敬了1980年代的经典影视作品，如《E.T.外星人》、《夺宝奇兵》、《鬼玩人》等。
+                        </p>
+                    </div>
+                    <div>
+                        <p class="mb-4">
+                            故事围绕着一个拥有超能力的女孩"十一"、一群勇敢的少年、小镇警长和失踪男孩的母亲展开，他们共同面对来自另一个维度"逆世界"的威胁。
+                        </p>
+                        <p>
+                            剧集获得了广泛的好评和多个奖项提名，包括艾美奖、金球奖等，成为Netflix最受欢迎的原创剧集之一。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 角色介绍 -->
+    <section id="characters" class="py-20 relative bg-hawkins-black">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-retro mb-12 text-center text-hawkins-blue text-shadow-neon">
+                角色介绍
+            </h2>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 十一 -->
+                <div class="glass-panel p-6 pixel-corners">
+                    <div class="relative mb-4 overflow-hidden rounded-md">
+                        <img src="https://c-ssl.dtstatic.com/uploads/blog/202208/19/20220819180114_aa2f8.thumb.400_0.jpg" alt="十一" class="w-full h-80 object-cover transition-transform duration-500 hover:scale-110">
+                    </div>
+                    <h3 class="text-xl font-retro mb-2 text-hawkins-pink">迈克丝 / Max</h3>
+                    <p class="text-sm text-gray-400 mb-4">萨迪·辛克 饰</p>
+                    <p class="text-sm">
+                        踩着滑板闯入霍金斯的 “外来者”。她外表叛逆疏离，内心却藏着对真诚连接的渴望。经历继兄 Billy 的死亡后，被愧疚与恐惧拖入深渊，成为 Vecna 的目标。
+                    </p>
+                </div>
+                
+                <!-- 迈克 -->
+                <div class="glass-panel p-6 pixel-corners">
+                    <div class="relative mb-4 overflow-hidden rounded-md">
+                        <img src="https://p3-doubao-search-sign.byteimg.com/tos-cn-i-ry4let6mk6/854bc5ebd9484ef0a1b47fc9a4107ff7~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778842441&x-signature=qjJMccxqZ%2BIBBXAX9yotIqI%2BB%2F4%3D" alt="迈克" class="w-full h-80 object-cover transition-transform duration-500 hover:scale-110">
+                    </div>
+                    <h3 class="text-xl font-retro mb-2 text-hawkins-pink">迈克·惠勒 / Mike Wheeler</h3>
+                    <p class="text-sm text-gray-400 mb-4">菲恩·伍法德 饰</p>
+                    <p class="text-sm">
+                        少年团的领导者，是第一个发现并帮助十一的人。他勇敢、忠诚，总是愿意为朋友冒险。
+                    </p>
+                </div>
+                
+                <!-- 霍珀警长 -->
+                <div class="glass-panel p-6 pixel-corners">
+                    <div class="relative mb-4 overflow-hidden rounded-md">
+                        <img src="https://p3-doubao-search-sign.byteimg.com/labis/85c67fdbda8650de42ae5945b14a86d3~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778842441&x-signature=9nAgHwThzDtMFQaJnWThXuky5zM%3D" alt="霍珀警长" class="w-full h-80 object-cover transition-transform duration-500 hover:scale-110">
+                    </div>
+                    <h3 class="text-xl font-retro mb-2 text-hawkins-pink">吉姆·霍珀 / Jim Hopper</h3>
+                    <p class="text-sm text-gray-400 mb-4">大卫·哈伯 饰</p>
+                    <p class="text-sm">
+                        霍金斯小镇的警长，一个表面粗鲁但内心善良的人。他一直在调查小镇上的神秘事件，并逐渐成为十一的父亲 figure。
+                    </p>
+                </div>
+            </div>
+            
+            <!-- 查看更多按钮 -->
+            <div class="mt-10 text-center">
+                <button id="show-more-characters" class="px-6 py-3 bg-hawkins-purple hover:bg-hawkins-purple/80 text-white font-retro text-sm border border-hawkins-purple border-glow-purple transition-all pixel-corners">
+                    查看更多角色
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 趣味测试 -->
+    <section id="test" class="py-20 relative bg-hawkins-black">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-retro mb-12 text-center text-hawkins-blue text-shadow-neon">
+                怪奇物语趣味测试
+            </h2>
+            
+            <div class="max-w-3xl mx-auto">
+                <!-- 测试介绍 -->
+                <div id="test-intro" class="glass-panel p-6 md:p-8 pixel-corners text-center">
+                    <img src="https://p11-doubao-search-sign.byteimg.com/mosaic-legacy/4adf0000be6b7b8b86e8~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778842359&x-signature=asnXoFawwvfzgvuRdqy5pARAg94%3D" alt="Stranger Things Logo" class="w-32 h-32 mx-auto mb-6">
+                    <h3 class="text-2xl font-retro mb-4 text-hawkins-pink">霍金斯居民测试</h3>
+                    <p class="mb-6">
+                        你是怪奇物语的忠实粉丝吗？测试一下你对剧集的了解程度，看看你最像哪个角色！
+                    </p>
+                    <button id="start-test" class="px-6 py-3 bg-hawkins-red hover:bg-hawkins-red/80 text-white font-retro text-sm border border-hawkins-red border-glow-pink transition-all pixel-corners">
+                        开始测试
+                    </button>
+                </div>
+                
+                <!-- 测试问题 -->
+                <div id="test-questions" class="hidden">
+                    <!-- 问题1 -->
+                    <div class="question glass-panel p-6 md:p-8 pixel-corners mb-6" data-question="1">
+                        <h3 class="text-xl font-retro mb-4 text-hawkins-pink">问题 1/8</h3>
+                        <p class="mb-6">在霍金斯小镇，第一个被发现失踪的孩子是谁？</p>
+                        <div class="space-y-3">
+                            <label class="flex items-center p-3 bg-upside-down rounded cursor-pointer hover:bg-upside-down/70 transition-colors">
+                                <input type="radio" name="q1" value="a" class="mr-3">
+                                <span>威尔·拜尔斯</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-upside-down rounded cursor-pointer hover:bg-upside-down/70 transition-colors">
+                                <input type="radio" name="q1" value="b" class="mr-3">
+                                <span>芭芭拉·霍兰德</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-upside-down rounded cursor-pointer hover:bg-upside-down/70 transition-colors">
+                                <input type="radio" name="q1" value="c" class="mr-3">
+                                <span>本尼·哈蒙德</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-upside-down rounded cursor-pointer hover:bg-upside-down/70 transition-colors">
+                                <input type="radio" name="q1" value="d" class="mr-3">
+                                <span>十一</span>
+                            </label>
+                        </div>
+                        <div class="mt-6 flex justify-end">
+                            <button class="next-question px-6 py-2 bg-hawkins-blue hover:bg-hawkins-blue/80 text-white font-retro text-sm border border-hawkins-blue border-glow transition-all pixel-corners">
+                                下一题
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 问题2 -->
+                    <div class="question glass-panel p-6 md:p-8 pixel-corners mb-6 hidden" data-question="2">
+                        <h3 class="text-xl font-retro mb-4 text-hawkins-pink">问题 2/8</h3>
+                        <p class="mb-6">十一的超能力主要是什么？</p>
+                        <div class="space-y-3">
+                            <label class="flex items-center p-3 bg-upside-down rounded cursor-pointer hover:bg-upside-down/70 transition-colors">
+                                <input type="radio" name="q2" value="a" class="mr-3">
+                                <span>读心术</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-upside-down rounded cursor-pointer hover:bg-upside-down/70 transition-colors">
+                                <input type="radio" name="q2" value="b" class="mr-3">
+                                <span>隔空移物</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-upside-down rounded cursor-pointer hover:bg-upside-down/70 transition-colors">
+                                <input type="radio" name="q2" value="c" class="mr-3">
+                                <span>时间旅行</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-upside-down rounded cursor-pointer hover:bg-upside-down/70 transition-colors">
+                                <input type="radio" name="q2" value="d" class="mr-3">
+                                <span>变形</span>
+                            </label>
+                        </div>
+                        <div class="mt-6 flex justify-between">
+                            <button class="prev-question px-6 py-2 bg-hawkins-purple hover:bg-hawkins-purple/80 text-white font-retro text-sm border border-hawkins-purple border-glow-purple transition-all pixel-corners">
+                                上一题
+                            </button>
+                            <button class="next-question px-6 py-2 bg-hawkins-blue hover:bg-hawkins-blue/80 text-white font-retro text-sm border border-hawkins-blue border-glow transition-all pixel-corners">
+                                下一题
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 问题3 -->
+                    <div class="question glass-panel p-6 md:p-8 pixel-corners mb-6 hidden" data-question="3">
+                        <h3 class="text-xl font-retro mb-4 text-hawkins-pink">问题 3/8</h3>
+                        <p class="mb-6">霍金斯国家实验室的编号是多少？</p>
+                        <div class="space-y-3">
+                            <label class="flex items-center p-3 bg-upside-down rounded cursor-pointer hover:bg-upside-down/70 transition-colors">
+                                <input type="radio" name="q3" value="a" class="mr-3">
+                                <span>霍金斯实验室</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-upside-down rounded cursor-pointer hover:bg-upside-down/70 transition-colors">
+                                <input type="radio" name="q3" value="b" class="mr-3">
+                                <span>印第安纳州立实验室</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-upside-down rounded cursor-pointer hover:bg-upside-down/70 transition-colors">
+                                <input type="radio" name="q3" value="c" class="mr-3">
+                                <span>马丁·布伦纳博士实验室</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-upside-down rounded cursor-pointer hover:bg-upside-down/70 transition-colors">
+                                <input type="radio" name="q3" value="d" class="mr-3">
+                                <span>Hawkins National Laboratory</span>
+                            </label>
+                        </div>
+                        <div class="mt-6 flex justify-between">
+                            <button class="prev-question px-6 py-2 bg-hawkins-purple hover:bg-hawkins-purple/80 text-white font-retro text-sm border border-hawkins-purple border-glow-purple transition-all pixel-corners">
+                                上一题
+                            </button>
+                            <button class="next-question px-6 py-2 bg-hawkins-blue hover:bg-hawkins-blue/80 text-white font-retro text-sm border border-hawkins-blue border-glow transition-all pixel-corners">
+                                下一题
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 测试结果 -->
+                <div id="test-result" class="hidden glass-panel p-6 md:p-8 pixel-corners text-center">
+                    <h3 class="text-2xl font-retro mb-6 text-hawkins-pink">测试结果</h3>
+                    <div id="result-content" class="mb-8">
+                        <!-- 结果内容将通过JavaScript动态生成 -->
+                    </div>
+                    <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                        <button id="restart-test" class="px-6 py-3 bg-hawkins-blue hover:bg-hawkins-blue/80 text-white font-retro text-sm border border-hawkins-blue border-glow transition-all pixel-corners">
+                            重新测试
+                        </button>
+                        <button id="share-result" class="px-6 py-3 bg-hawkins-pink hover:bg-hawkins-pink/80 text-white font-retro text-sm border border-hawkins-pink border-glow-pink transition-all pixel-corners">
+                            分享结果
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-upside-down py-8 border-t border-hawkins-blue mt-16">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <img src="https://p11-doubao-search-sign.byteimg.com/mosaic-legacy/4adf0000be6b7b8b86e8~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778842359&x-signature=asnXoFawwvfzgvuRdqy5pARAg94%3D" alt="Stranger Things Logo" class="h-10 mx-auto md:mx-0">
+                </div>
+                
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-hawkins-blue transition-colors">
+                        <i class="fa fa-facebook-square text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-hawkins-blue transition-colors">
+                        <i class="fa fa-twitter-square text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-hawkins-blue transition-colors">
+                        <i class="fa fa-instagram text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-hawkins-blue transition-colors">
+                        <i class="fa fa-youtube-play text-2xl"></i>
+                    </a>
+                </div>
+                
+                <div class="mt-6 md:mt-0 text-gray-400 text-sm">
+                    <p>&copy; 2025 怪奇物语应援网站 | Stranger Things Fan Site</p>
+                    <p class="mt-1">本网站仅为粉丝制作，非官方网站</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 音乐播放器 -->
+    <div class="fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-hawkins-pink bg-hawkins-black/90">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <!-- 网易云音乐嵌入播放器 - 完整版本 -->
+                <div class="w-full max-w-3xl mx-auto">
+                    <iframe 
+                        id="music-player"
+                        frameborder="no" 
+                        border="0" 
+                        marginwidth="0" 
+                        marginheight="0" 
+                        width="100%" 
+                        height="66" 
+                        src="https://music.163.com/outchain/player?type=2&id=19012449&auto=1&height=66"
+                        class="w-full"
+                    ></iframe>
+                </div>
+            </div>
+            
+            <!-- 复古扫描线效果 -->
+            <div class="absolute top-0 left-0 right-0 h-1 bg-white opacity-10 animate-scanline"></div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 移动端菜单切换
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            // 尝试自动播放音乐
+            // 由于浏览器限制，需要用户交互才能自动播放
+            const tryAutoPlay = () => {
+                // 尝试与iframe通信来播放音乐
+                const playerFrame = document.getElementById('music-player');
+                if (playerFrame) {
+                    // 添加轻微延迟确保iframe已加载
+                    setTimeout(() => {
+                        try {
+                            // 尝试触发iframe中的播放事件
+                            playerFrame.contentWindow.postMessage({action: 'play'}, '*');
+                        } catch (e) {
+                            console.log('自动播放受限，需要用户交互');
+                        }
+                    }, 1000);
+                }
+            };
+            
+            // 页面加载后尝试自动播放
+            tryAutoPlay();
+            
+            // 添加页面点击事件监听器，一旦用户交互就尝试播放
+            document.addEventListener('click', function firstClick() {
+                tryAutoPlay();
+                // 只执行一次
+                document.removeEventListener('click', firstClick);
+            }, {once: true});
+            
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                        
+                        // 如果是移动端，点击后关闭菜单
+                if (window.innerWidth < 768) {
+                    mobileMenu.classList.add('hidden');
+                }
+                
+                // 用户交互时尝试播放音乐
+                tryAutoPlay();
+                    }
+                });
+            });
+            
+            // 趣味测试功能
+            const testIntro = document.getElementById('test-intro');
+            const testQuestions = document.getElementById('test-questions');
+            const testResult = document.getElementById('test-result');
+            const startTestBtn = document.getElementById('start-test');
+            const restartTestBtn = document.getElementById('restart-test');
+            const shareResultBtn = document.getElementById('share-result');
+            const resultContent = document.getElementById('result-content');
+            
+            // 开始测试
+            startTestBtn.addEventListener('click', function() {
+                testIntro.classList.add('hidden');
+                testQuestions.classList.remove('hidden');
+                showQuestion(1);
+            });
+            
+            // 下一题
+            document.querySelectorAll('.next-question').forEach(button => {
+                button.addEventListener('click', function() {
+                    const currentQuestion = parseInt(this.closest('.question').dataset.question);
+                    const nextQuestion = currentQuestion + 1;
+                    
+                    // 检查是否选择了答案
+                    const selectedAnswer = document.querySelector(`input[name="q${currentQuestion}"]:checked`);
+                    if (!selectedAnswer) {
+                        alert('请选择一个答案！');
+                        return;
+                    }
+                    
+                    // 如果是最后一题，显示提交按钮
+                    if (nextQuestion > 3) {
+                        submitTest();
+                        return;
+                    }
+                    
+                    showQuestion(nextQuestion);
+                });
+            });
+            
+            // 上一题
+            document.querySelectorAll('.prev-question').forEach(button => {
+                button.addEventListener('click', function() {
+                    const currentQuestion = parseInt(this.closest('.question').dataset.question);
+                    const prevQuestion = currentQuestion - 1;
+                    
+                    if (prevQuestion >= 1) {
+                        showQuestion(prevQuestion);
+                    }
+                });
+            });
+            
+            // 显示特定问题
+            function showQuestion(questionNumber) {
+                document.querySelectorAll('.question').forEach(question => {
+                    if (parseInt(question.dataset.question) === questionNumber) {
+                        question.classList.remove('hidden');
+                    } else {
+                        question.classList.add('hidden');
+                    }
+                });
+                
+                // 滚动到问题区域
+                document.querySelector(`.question[data-question="${questionNumber}"]`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            
+            // 提交测试
+            function submitTest() {
+                testQuestions.classList.add('hidden');
+                testResult.classList.remove('hidden');
+                
+                // 计算得分和匹配角色
+                const character = calculateResult();
+                
+                // 显示结果
+                displayResult(character);
+                
+                // 滚动到结果区域
+                testResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            
+            // 计算测试结果
+            function calculateResult() {
+                // 获取所有答案
+                const answers = {};
+                for (let i = 1; i <= 3; i++) {
+                    const selectedOption = document.querySelector(`input[name="q${i}"]:checked`);
+                    if (selectedOption) {
+                        answers[`q${i}`] = selectedOption.value;
+                    }
+                }
+                
+                // 根据答案计算结果（简化版）
+                // 实际应用中应该有更复杂的算法
+                if (answers.q1 === 'a' && answers.q2 === 'b') {
+                    return 'eleven';
+                } else if (answers.q1 === 'a' && answers.q2 === 'a') {
+                    return 'mike';
+                } else if (answers.q3 === 'd') {
+                    return 'hopper';
+                } else if (answers.q2 === 'c') {
+                    return 'dustin';
+                } else {
+                    return 'joyce';
+                }
+            }
+            
+            // 角色信息
+            const characters = {
+                'eleven': {
+                    name: '十一',
+                    description: '你就像十一一样，拥有强大的内心和隐藏的能力。你勇敢、忠诚，愿意为朋友冒险。',
+                    image: 'https://p26-doubao-search-sign.byteimg.com/tos-cn-i-6w9my0ksvp/ca8f403a2b9d481f8ab36b78bf4fc611~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778842441&x-signature=p%2FbGiG3HASg8Uqf7ln4uoAhBpB4%3D',
+                    quote: 'Friends don\'t lie.'
+                },
+                'mike': {
+                    name: '迈克·惠勒',
+                    description: '你就像迈克一样，是一个天生的领导者，非常重视友情。你聪明、勇敢，总是愿意帮助朋友。',
+                    image: 'https://p3-doubao-search-sign.byteimg.com/tos-cn-i-ry4let6mk6/854bc5ebd9484ef0a1b47fc9a4107ff7~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778842441&x-signature=qjJMccxqZ%2BIBBXAX9yotIqI%2BB%2F4%3D',
+                    quote: 'We\'re not kids anymore.'
+                },
+                'hopper': {
+                    name: '吉姆·霍珀',
+                    description: '你就像霍珀警长一样，表面粗鲁但内心善良。你有责任感，愿意为保护他人而战。',
+                    image: 'https://p3-doubao-search-sign.byteimg.com/labis/85c67fdbda8650de42ae5945b14a86d3~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778842441&x-signature=9nAgHwThzDtMFQaJnWThXuky5zM%3D',
+                    quote: 'Mornings are for coffee and contemplation.'
+                },
+                'dustin': {
+                    name: '达斯汀·亨德森',
+                    description: '你就像达斯汀一样，幽默风趣，是朋友中的开心果。你聪明、好奇，对新事物充满热情。',
+                    image: 'https://p11-doubao-search-sign.byteimg.com/mosaic-legacy/4adf0000be6b7b8b86e8~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778842359&x-signature=asnXoFawwvfzgvuRdqy5pARAg94%3D',
+                    quote: 'I\'m on a mission to save the world.'
+                },
+                'joyce': {
+                    name: '乔伊斯·拜尔斯',
+                    description: '你就像乔伊斯一样，是一个充满爱心和决心的人。你会不惜一切代价保护你所爱的人。',
+                    image: 'https://p26-doubao-search-sign.byteimg.com/tos-cn-i-6w9my0ksvp/7851e3b700004f48a5fb4ad0039530a1~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778842441&x-signature=5BBykgPJLIzRCWT3tuULgQGWzGs%3D',
+                    quote: 'I know my son is alive.'
+                }
+            };
+            
+            // 显示测试结果
+            function displayResult(character) {
+                const char = characters[character] || characters['eleven'];
+                
+                resultContent.innerHTML = `
+                    <div class="flex flex-col items-center">
+                        <div class="relative w-40 h-40 rounded-full overflow-hidden border-2 border-hawkins-pink border-glow-pink mb-6">
+                            <img src="${char.image}" alt="${char.name}" class="w-full h-full object-cover">
+                        </div>
+                        <h4 class="text-2xl font-retro mb-2 text-hawkins-pink">${char.name}</h4>
+                        <p class="mb-4 max-w-md">${char.description}</p>
+                        <div class="text-sm font-retro italic mb-4">"${char.quote}"</div>
+                        <div class="mt-4">
+                            <span class="inline-block px-3 py-1 bg-hawkins-pink/20 text-hawkins-pink text-xs font-mono rounded">
+                                匹配度: 95%
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 重新测试
+            restartTestBtn.addEventListener('click', function() {
+                // 重置所有答案
+                document.querySelectorAll('input[type="radio"]').forEach(input => {
+                    input.checked = false;
+                });
+                
+                // 返回测试介绍
+                testResult.classList.add('hidden');
+                testIntro.classList.remove('hidden');
+                
+                // 滚动到测试介绍区域
+                testIntro.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+            
+            // 分享结果
+            shareResultBtn.addEventListener('click', function() {
+                alert('分享功能即将上线！');
+            });
+            
+            // 获取角色标志性物品
+            function getCharacterItem(character) {
+                const items = {
+                    'eleven': '金发、实验服',
+                    'mike': '自行车、对讲机',
+                    'hopper': '警长帽、香烟',
+                    'dustin': '帽子、科学设备',
+                    'joyce': '圣诞灯、相机',
+                    'will': '画笔、画板'
+                };
+                
+                return items[character] || '友情';
+            }
+            
+            // 查看更多角色
+            const showMoreCharactersBtn = document.getElementById('show-more-characters');
+            showMoreCharactersBtn.addEventListener('click', function() {
+                alert('更多角色信息即将上线！');
+            });
+            
+            // GSAP动画
+            // 首页标题动画
+            gsap.from('.typewriter', {
+                width: 0,
+                duration: 2,
+                ease: 'power1.inOut'
+            });
+            
+            // 滚动触发动画
+            gsap.registerPlugin(ScrollTrigger);
+            
+            // 剧集信息动画
+            gsap.from('#about .glass-panel', {
+                scrollTrigger: {
+                    trigger: '#about',
+                    start: 'top 80%'
+                },
+                y: 50,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.2
+            });
+            
+            // 角色介绍动画
+            gsap.from('#characters .glass-panel', {
+                scrollTrigger: {
+                    trigger: '#characters',
+                    start: 'top 80%'
+                },
+                y: 50,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.2
+            });
+            
+            // 测试区域动画
+            gsap.from('#test .glass-panel', {
+                scrollTrigger: {
+                    trigger: '#test',
+                    start: 'top 80%'
+                },
+                y: 50,
+                opacity: 0,
+                duration: 0.8
+            });
+        });
+    </script>
+</body>
+</html>
