@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>怪奇物语材哥制作 | Stranger Things Fan Site</title>
+    <title>怪奇物语 | Stranger Things Fan Site</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
@@ -558,7 +558,7 @@
         <div class="container mx-auto px-4">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <div class="mb-6 md:mb-0">
-                    <img src="https://p11-doubao-search-sign.byteimg.com/mosaic-legacy/4adf0000be6b7b8b86e8~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778842359&x-signature=asnXoFawwvfzgvuRdqy5pARAg94%3D" alt="Stranger Things Logo" class="h-10 mx-auto md:mx-0">
+                    <img src="https://i.pinimg.com/736x/60/d7/ef/60d7ef59b3863b30ff0062b3ae2b4f50.jpg" alt="Stranger Things Logo" class="h-10 mx-auto md:mx-0">
                 </div>
                 
                 <div class="flex space-x-6">
@@ -577,35 +577,37 @@
                 </div>
                 
                 <div class="mt-6 md:mt-0 text-gray-400 text-sm">
-                    <p>&copy; 2025 怪奇物语应援网站 | Stranger Things Fan Site</p>
+                    <p>&copy; 2025 怪奇物语 | Stranger Things Fan Site</p>
                     <p class="mt-1">本网站仅为粉丝制作，非官方网站</p>
+                    <p class="mt-1">BY：loxc</p>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- 音乐播放器 -->
-    <div class="fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-hawkins-pink bg-hawkins-black/90">
-        <div class="container mx-auto px-4 py-3">
-            <div class="flex flex-col md:flex-row items-center justify-between">
-                <!-- 网易云音乐嵌入播放器 - 完整版本 -->
-                <div class="w-full max-w-3xl mx-auto">
-                    <iframe 
-                        id="music-player"
-                        frameborder="no" 
-                        border="0" 
-                        marginwidth="0" 
-                        marginheight="0" 
-                        width="100%" 
-                        height="66" 
-                        src="https://music.163.com/outchain/player?type=2&id=19012449&auto=1&height=66"
-                        class="w-full"
-                    ></iframe>
-                </div>
-            </div>
-            
-            <!-- 复古扫描线效果 -->
-            <div class="absolute top-0 left-0 right-0 h-1 bg-white opacity-10 animate-scanline"></div>
+    <!-- 可拖动音乐播放器 -->
+    <div id="music-player-container" class="fixed right-4 bottom-4 z-50 glass-panel border border-hawkins-pink bg-hawkins-black/90 w-72 pixel-corners">
+        <div class="cursor-move p-2 text-center text-sm font-retro text-hawkins-pink border-b border-hawkins-pink">
+            <i class="fa fa-arrows mr-2"></i>拖动调整位置
+        </div>
+        <div class="p-2">
+            <!-- 网易云音乐嵌入播放器 -->
+            <iframe 
+                id="music-player"
+                frameborder="no" 
+                border="0" 
+                marginwidth="0" 
+                marginheight="0" 
+                width="100%" 
+                height="66" 
+                src="https://music.163.com/outchain/player?type=2&id=19012449&auto=1&height=66"
+                class="w-full"
+            ></iframe>
+        </div>
+        
+        <!-- 复古扫描线效果 -->
+        <div class="relative">
+            <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-white opacity-10 animate-scanline"></div>
         </div>
     </div>
 
@@ -647,6 +649,68 @@
             mobileMenuButton.addEventListener('click', function() {
                 mobileMenu.classList.toggle('hidden');
             });
+            
+            // 音乐播放器拖动功能
+            const playerContainer = document.getElementById('music-player-container');
+            const dragHandle = playerContainer.querySelector('.cursor-move');
+            
+            let isDragging = false;
+            let offsetX, offsetY;
+            
+            dragHandle.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                // 计算鼠标相对于播放器容器左上角的偏移量
+                offsetX = e.clientX - playerContainer.getBoundingClientRect().left;
+                offsetY = e.clientY - playerContainer.getBoundingClientRect().top;
+                
+                // 添加拖动时的样式
+                playerContainer.classList.add('border-glow-pink');
+                dragHandle.style.cursor = 'grabbing';
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                
+                // 计算新的位置，确保不超出窗口边界
+                let newX = e.clientX - offsetX;
+                let newY = e.clientY - offsetY;
+                
+                // 边界检查
+                const containerWidth = playerContainer.offsetWidth;
+                const containerHeight = playerContainer.offsetHeight;
+                
+                newX = Math.max(10, Math.min(window.innerWidth - containerWidth - 10, newX));
+                newY = Math.max(10, Math.min(window.innerHeight - containerHeight - 10, newY));
+                
+                // 设置新位置
+                playerContainer.style.left = newX + 'px';
+                playerContainer.style.top = newY + 'px';
+                playerContainer.style.right = 'auto';
+                playerContainer.style.bottom = 'auto';
+            });
+            
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    playerContainer.classList.remove('border-glow-pink');
+                    dragHandle.style.cursor = 'grab';
+                    
+                    // 保存位置到localStorage，下次加载时恢复
+                    localStorage.setItem('musicPlayerX', playerContainer.style.left);
+                    localStorage.setItem('musicPlayerY', playerContainer.style.top);
+                }
+            });
+            
+            // 加载保存的位置
+            const savedX = localStorage.getItem('musicPlayerX');
+            const savedY = localStorage.getItem('musicPlayerY');
+            
+            if (savedX && savedY) {
+                playerContainer.style.left = savedX;
+                playerContainer.style.top = savedY;
+                playerContainer.style.right = 'auto';
+                playerContainer.style.bottom = 'auto';
+            }
             
             // 平滑滚动
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
